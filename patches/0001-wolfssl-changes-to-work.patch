@@ -1,0 +1,202 @@
+From 147629ae2bfe5ab5145249487499fc929800190f Mon Sep 17 00:00:00 2001
+From: fjebaker <fergusbkr@gmail.com>
+Date: Mon, 12 Sep 2022 15:06:32 +0100
+Subject: [PATCH 1/1] wolfssl: changes to work
+
+---
+ IDE/GCC-ARM/Header/user_settings.h        | 8 ++++----
+ IDE/VisualDSP/user_settings.h             | 8 ++++----
+ IDE/WICED-STUDIO/user_settings.h          | 8 ++++----
+ examples/configs/user_settings_template.h | 8 ++++----
+ src/sniffer.c                             | 2 +-
+ wolfssl/wolfcrypt/settings.h              | 4 ++--
+ wolfssl/wolfcrypt/types.h                 | 8 ++++----
+ wolfssl/wolfio.h                          | 4 ++--
+ 8 files changed, 25 insertions(+), 25 deletions(-)
+
+diff --git a/IDE/GCC-ARM/Header/user_settings.h b/IDE/GCC-ARM/Header/user_settings.h
+index 1496866b1..470b53adc 100644
+--- a/IDE/GCC-ARM/Header/user_settings.h
++++ b/IDE/GCC-ARM/Header/user_settings.h
+@@ -499,18 +499,18 @@ extern unsigned int my_rng_seed_gen(void);
+ 
+     #undef  USE_WOLF_STRSEP
+     #define USE_WOLF_STRSEP
+-    #define XSTRSEP(s1,d)     wc_strsep((s1),(d))
++    #define XSTRSEP(s1,k)     wc_strsep((s1),(k))
+ 
+     #undef  USE_WOLF_STRTOK
+     #define USE_WOLF_STRTOK
+-    #define XSTRTOK(s1,d,ptr) wc_strtok((s1),(d),(ptr))
++    #define XSTRTOK(s1,k,ptr) wc_strtok((s1),(k),(ptr))
+ 
+     #define XSTRNSTR(s1,s2,n) mystrnstr((s1),(s2),(n))
+ 
+-    #define XMEMCPY(d,s,l)    memcpy((d),(s),(l))
++    #define XMEMCPY(k,s,l)    memcpy((k),(s),(l))
+     #define XMEMSET(b,c,l)    memset((b),(c),(l))
+     #define XMEMCMP(s1,s2,n)  memcmp((s1),(s2),(n))
+-    #define XMEMMOVE(d,s,l)   memmove((d),(s),(l))
++    #define XMEMMOVE(k,s,l)   memmove((k),(s),(l))
+ 
+     #define XSTRLEN(s1)       strlen((s1))
+     #define XSTRNCPY(s1,s2,n) strncpy((s1),(s2),(n))
+diff --git a/IDE/VisualDSP/user_settings.h b/IDE/VisualDSP/user_settings.h
+index d4fbdbfd1..5c9316605 100644
+--- a/IDE/VisualDSP/user_settings.h
++++ b/IDE/VisualDSP/user_settings.h
+@@ -517,18 +517,18 @@ extern "C" {
+ 
+     #undef  USE_WOLF_STRSEP
+     #define USE_WOLF_STRSEP
+-    #define XSTRSEP(s1,d)     wc_strsep((s1),(d))
++    #define XSTRSEP(s1,k)     wc_strsep((s1),(k))
+ 
+     #undef  USE_WOLF_STRTOK
+     #define USE_WOLF_STRTOK
+-    #define XSTRTOK(s1,d,ptr) wc_strtok((s1),(d),(ptr))
++    #define XSTRTOK(s1,k,ptr) wc_strtok((s1),(k),(ptr))
+ 
+     #define XSTRNSTR(s1,s2,n) FCL_STRSTR((s1),(s2))
+ 
+-    #define XMEMCPY(d,s,l)    FCL_MEMCPY((d),(s),(l))
++    #define XMEMCPY(k,s,l)    FCL_MEMCPY((k),(s),(l))
+     #define XMEMSET(b,c,l)    FCL_MEMSET((b),(c),(l))
+     #define XMEMCMP(s1,s2,n)  FCL_MEMCMP((s1),(s2),(n))
+-    #define XMEMMOVE(d,s,l)   FCL_MEMMOVE((d),(s),(l))
++    #define XMEMMOVE(k,s,l)   FCL_MEMMOVE((k),(s),(l))
+ 
+     #define XSTRLEN(s1)       FCL_STRLEN((s1))
+     #define XSTRNCPY(s1,s2,n) FCL_STRNCPY((s1),(s2),(n))
+diff --git a/IDE/WICED-STUDIO/user_settings.h b/IDE/WICED-STUDIO/user_settings.h
+index 70e13959f..1efb8637a 100644
+--- a/IDE/WICED-STUDIO/user_settings.h
++++ b/IDE/WICED-STUDIO/user_settings.h
+@@ -509,18 +509,18 @@ extern unsigned int my_rng_seed_gen(void);
+ 
+     #undef  USE_WOLF_STRSEP
+     #define USE_WOLF_STRSEP
+-    #define XSTRSEP(s1,d)     wc_strsep((s1),(d))
++    #define XSTRSEP(s1,k)     wc_strsep((s1),(k))
+ 
+     #undef  USE_WOLF_STRTOK
+     #define USE_WOLF_STRTOK
+-    #define XSTRTOK(s1,d,ptr) wc_strtok((s1),(d),(ptr))
++    #define XSTRTOK(s1,k,ptr) wc_strtok((s1),(k),(ptr))
+ 
+     #define XSTRNSTR(s1,s2,n) mystrnstr((s1),(s2),(n))
+ 
+-    #define XMEMCPY(d,s,l)    memcpy((d),(s),(l))
++    #define XMEMCPY(k,s,l)    memcpy((k),(s),(l))
+     #define XMEMSET(b,c,l)    memset((b),(c),(l))
+     #define XMEMCMP(s1,s2,n)  memcmp((s1),(s2),(n))
+-    #define XMEMMOVE(d,s,l)   memmove((d),(s),(l))
++    #define XMEMMOVE(k,s,l)   memmove((k),(s),(l))
+ 
+     #define XSTRLEN(s1)       strlen((s1))
+     #define XSTRNCPY(s1,s2,n) strncpy((s1),(s2),(n))
+diff --git a/examples/configs/user_settings_template.h b/examples/configs/user_settings_template.h
+index 30b1a7736..abe084944 100644
+--- a/examples/configs/user_settings_template.h
++++ b/examples/configs/user_settings_template.h
+@@ -452,17 +452,17 @@ extern "C" {
+     #include <string.h>
+ 
+     #define USE_WOLF_STRSEP
+-    #define XSTRSEP(s1,d)     wc_strsep((s1),(d))
++    #define XSTRSEP(s1,k)     wc_strsep((s1),(k))
+ 
+     #define USE_WOLF_STRTOK
+-    #define XSTRTOK(s1,d,ptr) wc_strtok((s1),(d),(ptr))
++    #define XSTRTOK(s1,k,ptr) wc_strtok((s1),(k),(ptr))
+ 
+     #define XSTRNSTR(s1,s2,n) mystrnstr((s1),(s2),(n))
+ 
+-    #define XMEMCPY(d,s,l)    memcpy((d),(s),(l))
++    #define XMEMCPY(k,s,l)    memcpy((k),(s),(l))
+     #define XMEMSET(b,c,l)    memset((b),(c),(l))
+     #define XMEMCMP(s1,s2,n)  memcmp((s1),(s2),(n))
+-    #define XMEMMOVE(d,s,l)   memmove((d),(s),(l))
++    #define XMEMMOVE(k,s,l)   memmove((k),(s),(l))
+ 
+     #define XSTRLEN(s1)       strlen((s1))
+     #define XSTRNCPY(s1,s2,n) strncpy((s1),(s2),(n))
+diff --git a/src/sniffer.c b/src/sniffer.c
+index 6a26406e7..27f1e0dd6 100644
+--- a/src/sniffer.c
++++ b/src/sniffer.c
+@@ -42,7 +42,7 @@
+     #define XINET_NTOA FNS_INET_NTOA
+     #define XINET_ATON FNS_INET_ATON
+     #define XINET_PTON(a,b,c,d) FNS_INET_PTON((a),(b),(c),(d),NULL)
+-    #define XINET_NTOP(a,b,c,d) FNS_INET_NTOP((a),(b),(c),(d),NULL)
++    #define XINET_NTOP(a,b,c,k) FNS_INET_NTOP((a),(b),(c),(k),NULL)
+     #define XINET_ADDR FNS_INET_ADDR
+     #define XHTONS FNS_HTONS
+     #define XNTOHS FNS_NTOHS
+diff --git a/wolfssl/wolfcrypt/settings.h b/wolfssl/wolfcrypt/settings.h
+index bcd77fdb7..b9ba73459 100644
+--- a/wolfssl/wolfcrypt/settings.h
++++ b/wolfssl/wolfcrypt/settings.h
+@@ -578,10 +578,10 @@
+ 
+     /* use uTasker std library replacements where available */
+     #define STRING_USER
+-    #define XMEMCPY(d,s,l)         uMemcpy((d),(s),(l))
++    #define XMEMCPY(k,s,l)         uMemcpy((k),(s),(l))
+     #define XMEMSET(b,c,l)         uMemset((b),(c),(l))
+     #define XMEMCMP(s1,s2,n)       uMemcmp((s1),(s2),(n))
+-    #define XMEMMOVE(d,s,l)        memmove((d),(s),(l))
++    #define XMEMMOVE(k,s,l)        memmove((k),(s),(l))
+ 
+     #define XSTRLEN(s1)            uStrlen((s1))
+     #define XSTRNCPY(s1,s2,n)      strncpy((s1),(s2),(n))
+diff --git a/wolfssl/wolfcrypt/types.h b/wolfssl/wolfcrypt/types.h
+index 964aa2c65..2104e9616 100644
+--- a/wolfssl/wolfcrypt/types.h
++++ b/wolfssl/wolfcrypt/types.h
+@@ -560,10 +560,10 @@ decouple library dependencies with standard string, memory and so on.
+             #include <string.h>
+         #endif
+ 
+-            #define XMEMCPY(d,s,l)    memcpy((d),(s),(l))
++            #define XMEMCPY(k,s,l)    memcpy((k),(s),(l))
+             #define XMEMSET(b,c,l)    memset((b),(c),(l))
+             #define XMEMCMP(s1,s2,n)  memcmp((s1),(s2),(n))
+-            #define XMEMMOVE(d,s,l)   memmove((d),(s),(l))
++            #define XMEMMOVE(k,s,l)   memmove((k),(s),(l))
+ 
+         #define XSTRLEN(s1)       strlen((s1))
+         #define XSTRNCPY(s1,s2,n) strncpy((s1),(s2),(n))
+@@ -576,9 +576,9 @@ decouple library dependencies with standard string, memory and so on.
+         #define XSTRNCAT(s1,s2,n) strncat((s1),(s2),(n))
+ 
+         #ifdef USE_WOLF_STRSEP
+-            #define XSTRSEP(s1,d) wc_strsep((s1),(d))
++            #define XSTRSEP(s1,k) wc_strsep((s1),(k))
+         #else
+-            #define XSTRSEP(s1,d) strsep((s1),(d))
++            #define XSTRSEP(s1,k) strsep((s1),(k))
+         #endif
+ 
+         #ifndef XSTRNCASECMP
+diff --git a/wolfssl/wolfio.h b/wolfssl/wolfio.h
+index 93d7d0371..390b0b56f 100644
+--- a/wolfssl/wolfio.h
++++ b/wolfssl/wolfio.h
+@@ -610,10 +610,10 @@ WOLFSSL_API void wolfSSL_SetIOWriteFlags(WOLFSSL* ssl, int flags);
+ 
+ 
+ #ifndef XINET_NTOP
+-    #define XINET_NTOP(a,b,c,d) inet_ntop((a),(b),(c),(d))
++    #define XINET_NTOP(a,b,c,k) inet_ntop((a),(b),(c),(k))
+     #ifdef USE_WINDOWS_API /* Windows-friendly definition */
+         #undef  XINET_NTOP
+-        #define XINET_NTOP(a,b,c,d) InetNtop((a),(b),(c),(d))
++        #define XINET_NTOP(a,b,c,k) InetNtop((a),(b),(c),(k))
+     #endif
+ #endif
+ #ifndef XINET_PTON
+-- 
+2.32.1 (Apple Git-133)
+
