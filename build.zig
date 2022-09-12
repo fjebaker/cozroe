@@ -25,6 +25,10 @@ const pkgs = struct {
         .name = "uri",
         .source = .{ .path = LIBS_DIR ++ "/zig-serve" ++ "/vendor/uri/uri.zig" },
     };
+    const regex = std.build.Pkg{
+        .name = "regex",
+        .source = .{ .path = LIBS_DIR ++ "/zig-regex/src/regex.zig"}
+    };
 };
 
 pub fn build(b: *std.build.Builder) void {
@@ -39,6 +43,7 @@ pub fn build(b: *std.build.Builder) void {
     gemini_exe.setBuildMode(mode);
     gemini_exe.addPackage(pkgs.serve);
     gemini_exe.addPackage(pkgs.network);
+    gemini_exe.addPackage(pkgs.regex);
     gemini_exe.addIncludeDir(LIBS_DIR ++ "/zig-serve" ++ "/vendor/wolfssl");
     gemini_exe.linkLibrary(wolfSSL);
     deps.addAllTo(gemini_exe);
