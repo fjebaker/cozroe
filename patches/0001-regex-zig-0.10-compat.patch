@@ -1,0 +1,31 @@
+From d069d377e62000234f46f8fe91c32d5b42304be7 Mon Sep 17 00:00:00 2001
+From: fjebaker <fergusbkr@gmail.com>
+Date: Mon, 12 Sep 2022 21:16:40 +0100
+Subject: [PATCH 1/1] regex: zig 0.10 compat
+
+---
+ src/input.zig | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/src/input.zig b/src/input.zig
+index fd1ed95..21b1560 100644
+--- a/src/input.zig
++++ b/src/input.zig
+@@ -13,10 +13,10 @@ pub const Input = struct {
+     bytes: []const u8,
+     byte_pos: usize,
+ 
+-    currentFn: fn (input: Input) ?u8,
+-    advanceFn: fn (input: *Input) void,
+-    isNextWordCharFn: fn (input: Input) bool,
+-    isPrevWordCharFn: fn (input: Input) bool,
++    currentFn: *const fn (input: Input) ?u8,
++    advanceFn: *const fn (input: *Input) void,
++    isNextWordCharFn: *const fn (input: Input) bool,
++    isPrevWordCharFn: *const fn (input: Input) bool,
+ 
+     pub fn advance(self: *Input) void {
+         self.advanceFn(self);
+-- 
+2.32.1 (Apple Git-133)
+
