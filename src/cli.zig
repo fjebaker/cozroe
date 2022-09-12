@@ -4,7 +4,7 @@ const clap = @import("clap");
 const debug = std.debug;
 const io = std.io;
 
-pub const ServerConfig = struct { port: u16, cert: []const u8, private_key: []const u8, dir: []const u8, database: [] const u8 };
+pub const ServerConfig = struct { port: u16, cert: []const u8, private_key: []const u8, dir: []const u8, database: []const u8 };
 
 const CommandLineError = error{NoArgument};
 
@@ -36,10 +36,10 @@ pub fn parseArgs() !ServerConfig {
     }
 
     var port = if (res.args.port) |p| p else 1965;
-    var cert = if (res.args.cert) |c| c else return CommandLineError.NoArgument; 
+    var cert = if (res.args.cert) |c| c else return CommandLineError.NoArgument;
     var private_key = if (res.args.private_key) |k| k else return CommandLineError.NoArgument;
     var dir = if (res.args.dir) |d| d else ".";
     var database = if (res.args.database) |d| d else "cozroe.sqlite.db";
 
-    return .{ .port = port, .cert = cert, .private_key = private_key, .dir = dir, .database = database};
+    return .{ .port = port, .cert = cert, .private_key = private_key, .dir = dir, .database = database };
 }

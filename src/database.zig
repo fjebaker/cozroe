@@ -3,7 +3,7 @@ const sqlite = @import("sqlite");
 
 const logger = std.log.scoped(.cozroe_database);
 
-pub fn init(path: [:0] const u8) !sqlite.Db {
+pub fn init(path: [:0]const u8) !sqlite.Db {
     logger.debug("using {s}", .{path});
     var db = try sqlite.Db.init(.{
         .mode = sqlite.Db.Mode{ .File = path },
@@ -14,7 +14,7 @@ pub fn init(path: [:0] const u8) !sqlite.Db {
         .threading_mode = .MultiThread,
     });
 
-    const query = 
+    const query =
         \\ CREATE TABLE IF NOT EXISTS traffic(time INTEGER PRIMARY KEY, ip TEXT NOT NULL, dest TEXT NOT NULL)
     ;
     try db.exec(query, .{}, .{});
