@@ -4,15 +4,15 @@ const clap = @import("clap");
 const debug = std.debug;
 const io = std.io;
 
-pub const ServerConfig = struct { port: u16, pub_cert: []const u8, priv_key: []const u8, dir: []const u8, database: [] const u8 };
+pub const ServerConfig = struct { port: u16, cert: []const u8, private_key: []const u8, dir: []const u8, database: [] const u8 };
 
 const CommandLineError = error{NoArgument};
 
 pub fn parseArgs() !ServerConfig {
     const params = comptime clap.parseParamsComptime(
         \\-h, --help             Display this help and exit.
-        \\--pub_cert <str>       Public certificate.
-        \\--priv_key <str>       Private key.
+        \\--cert <str>       Public certificate.
+        \\--private_key <str>       Private key.
         \\--dir <str>            Directory to serve.
         \\--port <u16>           Port to listen on.
         \\--database <str>       SQLite database to store traffic logs.
@@ -36,10 +36,10 @@ pub fn parseArgs() !ServerConfig {
     }
 
     var port = if (res.args.port) |p| p else 1965;
-    var pub_cert = if (res.args.pub_cert) |c| c else return CommandLineError.NoArgument; 
-    var priv_key = if (res.args.priv_key) |k| k else return CommandLineError.NoArgument;
+    var cert = if (res.args.cert) |c| c else return CommandLineError.NoArgument; 
+    var private_key = if (res.args.private_key) |k| k else return CommandLineError.NoArgument;
     var dir = if (res.args.dir) |d| d else ".";
     var database = if (res.args.database) |d| d else "cozroe.sqlite.db";
 
-    return .{ .port = port, .pub_cert = pub_cert, .priv_key = priv_key, .dir = dir, .database = database};
+    return .{ .port = port, .cert = cert, .private_key = private_key, .dir = dir, .database = database};
 }

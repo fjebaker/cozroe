@@ -11,7 +11,7 @@ Requires [zigmod package manager](https://github.com/nektro/zigmod). Fetch all d
 ```bash
 zigmod fetch
 git submodule init
-git submodule update
+git submodule update --init --recursive
 ```
 
 Apply custom patches to fix compilation issues, and modify logging statements:

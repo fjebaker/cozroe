@@ -11,7 +11,7 @@ pub fn start(allocator: std.mem.Allocator, db: *sqlite.Db, config: cli.ServerCon
     var listener = try serve.GeminiListener.init(allocator);
     defer listener.deinit();
 
-    try listener.addEndpoint(.{ .ipv4 = .{ 0, 0, 0, 0 } }, config.port, config.pub_cert, config.priv_key);
+    try listener.addEndpoint(.{ .ipv4 = .{ 0, 0, 0, 0 } }, config.port, config.cert, config.private_key);
 
     try listener.start();
     defer listener.stop();
