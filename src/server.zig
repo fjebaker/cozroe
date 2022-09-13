@@ -17,6 +17,7 @@ const SingleRequest = struct {
     path: []const u8,
     filepath: []const u8,
     time: i64,
+    ip: []const u8,
     context: *serve.GeminiContext,
 
     pub fn init(context: *serve.GeminiContext) SingleRequest {
@@ -24,16 +25,16 @@ const SingleRequest = struct {
         const path = context.request.url.path;
         const filepath = blueprint.getPage(path);
 
-        return SingleRequest{ .path = path, .filepath = filepath, .time = time, .context = context };
+        return SingleRequest{ .path = path, .filepath = filepath, .time = time, .ip = "", .context = context };
     }
 
     pub fn logToDatabase(self: *const @This(), db: *sqlite.Db) !void {
         const query =
-            \\INSERT INTO traffic (time, path) VALUES (?, ?)
+            \\INSERT INTO traffic (time, ip, path) VALUES (?, ?, ?)
         ;
         var stmt = try db.prepare(query);
         defer stmt.deinit();
-        try stmt.exec(.{}, .{ .time = self.time, .path = self.path });
+        try stmt.exec(.{}, .{ .time = self.time, .ip = self.ip, .path = self.path });
     }
 };
 

@@ -73,17 +73,17 @@ pub const HomeGemFile = struct {
     const Self = @This();
     const GemFile = BaseGemFile(Self, Self.substitute);
 
-    db: * sqlite.Db,
+    db: *sqlite.Db,
     allocator: std.mem.Allocator,
 
-    pub fn init(allocator: std.mem.Allocator, db: * sqlite.Db, dir: []const u8, path: []const u8) !GemFile {
-        const self: Self = .{.db = db, .allocator = allocator};
+    pub fn init(allocator: std.mem.Allocator, db: *sqlite.Db, dir: []const u8, path: []const u8) !GemFile {
+        const self: Self = .{ .db = db, .allocator = allocator };
         return try GemFile.init(allocator, self, dir, path);
     }
 
     pub fn deinit(_: *Self) void {}
 
-    fn substitute(self: * Self, content: [] const u8) ?[] const u8 {
+    fn substitute(self: *Self, content: []const u8) ?[]const u8 {
         const count: usize = database.getTotalConnectionsCount(self.db) catch 0;
         const unique_count: usize = database.getUniqueConnectionsCount(self.db) catch 0;
 

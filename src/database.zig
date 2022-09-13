@@ -15,7 +15,7 @@ pub fn init(path: [:0]const u8) !sqlite.Db {
     });
 
     const query =
-        \\ CREATE TABLE IF NOT EXISTS traffic(time INTEGER PRIMARY KEY, path TEXT NOT NULL)
+        \\ CREATE TABLE IF NOT EXISTS traffic(time INTEGER PRIMARY KEY, ip TEXT NOT NULL, path TEXT NOT NULL)
     ;
     try db.exec(query, .{}, .{});
     return db;
