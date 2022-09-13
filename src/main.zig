@@ -27,5 +27,8 @@ pub fn main() !void {
     var db = try database.init(path);
     defer db.deinit();
 
-    try server.start(alloc, &db, config);
+    var s = try server.Server.init(alloc, &config, &db);
+    defer s.deinit();
+
+    try s.start();
 }

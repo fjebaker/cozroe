@@ -15,8 +15,31 @@ pub fn init(path: [:0]const u8) !sqlite.Db {
     });
 
     const query =
-        \\ CREATE TABLE IF NOT EXISTS traffic(time INTEGER PRIMARY KEY, ip TEXT NOT NULL, dest TEXT NOT NULL)
+        \\ CREATE TABLE IF NOT EXISTS traffic(time INTEGER PRIMARY KEY, path TEXT NOT NULL)
     ;
     try db.exec(query, .{}, .{});
     return db;
+}
+
+pub fn getOneDb(db: *sqlite.Db, comptime query: []const u8) !usize {
+    const info = try db.one(usize, query, .{}, .{});
+    if (info) |res| {
+        return res;
+    }
+    logger.warn("No traffic in database?", .{});
+    return 0;
+}
+
+pub fn getTotalConnectionsCount(db: *sqlite.Db) !usize {
+    const query =
+        \\ SELECT COUNT(ip) FROM traffic
+    ;
+    return try getOneDb(db, query);
+}
+
+pub fn getUniqueConnectionsCount(db: *sqlite.Db) !usize {
+    const query =
+        \\ SELECT COUNT(DISTINCT ip) AS uniques FROM traffic
+    ;
+    return try getOneDb(db, query);
 }

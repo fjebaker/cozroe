@@ -41,11 +41,14 @@ pub fn build(b: *std.build.Builder) void {
     const gemini_exe = b.addExecutable("cozroe", "src/main.zig");
     gemini_exe.setTarget(target);
     gemini_exe.setBuildMode(mode);
+
     gemini_exe.addPackage(pkgs.serve);
     gemini_exe.addPackage(pkgs.network);
     gemini_exe.addPackage(pkgs.regex);
+
     gemini_exe.addIncludeDir(LIBS_DIR ++ "/zig-serve" ++ "/vendor/wolfssl");
     gemini_exe.linkLibrary(wolfSSL);
+
     deps.addAllTo(gemini_exe);
     gemini_exe.install();
 }
