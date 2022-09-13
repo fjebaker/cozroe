@@ -8,7 +8,7 @@ const database = @import("./database.zig");
 
 pub fn main() !void {
     // parse arguments
-    var config = try cli.parseArgs();
+    var config = cli.parseArgs() catch return;
 
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     defer _ = gpa.deinit();

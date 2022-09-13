@@ -5,6 +5,7 @@ const sqlite = @import("sqlite");
 
 const gemfiles = @import("./gemfiles.zig");
 const blueprint = @import("./blueprint.zig");
+const parsing = @import("./file-parsing.zig");
 
 const Regex = @import("regex").Regex;
 const ServerConfig = @import("./cli.zig").ServerConfig;
@@ -17,24 +18,35 @@ const SingleRequest = struct {
     path: []const u8,
     filepath: []const u8,
     time: i64,
-    ip: []const u8,
+    ip: ?[]const u8,
     context: *serve.GeminiContext,
+    allocator: std.mem.Allocator,
 
-    pub fn init(context: *serve.GeminiContext) SingleRequest {
+    pub fn init(allocator: std.mem.Allocator, access_log_path: []const u8, context: *serve.GeminiContext) SingleRequest {
         const time: i64 = std.time.milliTimestamp();
         const path = context.request.url.path;
         const filepath = blueprint.getPage(path);
 
-        return SingleRequest{ .path = path, .filepath = filepath, .time = time, .ip = "", .context = context };
+        const ip = parsing.getRemoteAddress(allocator, access_log_path);
+
+        return SingleRequest{ .path = path, .filepath = filepath, .time = time, .ip = ip, .context = context, .allocator = allocator };
+    }
+
+    pub fn deinit(self: *@This()) void {
+        if (self.ip) |ip| self.allocator.free(ip);
     }
 
     pub fn logToDatabase(self: *const @This(), db: *sqlite.Db) !void {
         const query =
             \\INSERT INTO traffic (time, ip, path) VALUES (?, ?, ?)
         ;
-        var stmt = try db.prepare(query);
-        defer stmt.deinit();
-        try stmt.exec(.{}, .{ .time = self.time, .ip = self.ip, .path = self.path });
+        if (self.ip) |ip| {
+            var stmt = try db.prepare(query);
+            defer stmt.deinit();
+            try stmt.exec(.{}, .{ .time = self.time, .ip = ip, .path = self.path });
+        } else {
+            logger.info("no request logged to database since no remote address known", .{});
+        }
     }
 };
 
@@ -72,7 +84,8 @@ pub const Server = struct {
         var context = try self.listener.getContext();
         defer context.deinit();
 
-        var req = SingleRequest.init(context);
+        var req = SingleRequest.init(self.allocator, self.config.access_log, context);
+        defer req.deinit();
         req.logToDatabase(self.db) catch |err| {
             logger.err("failed to write to database: {}", .{err});
         };
