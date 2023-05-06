@@ -3,3 +3,4 @@ zig-*
 deps.zig
 certs
 .vscode
+testhome

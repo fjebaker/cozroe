@@ -7,7 +7,6 @@ const gemfiles = @import("./gemfiles.zig");
 const blueprint = @import("./blueprint.zig");
 const parsing = @import("./file-parsing.zig");
 
-const Regex = @import("regex").Regex;
 const ServerConfig = @import("./cli.zig").ServerConfig;
 const GeminiFile = gemfiles.GeminiFile;
 const HomeGemFile = gemfiles.HomeGemFile;
