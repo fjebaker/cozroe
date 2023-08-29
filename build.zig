@@ -28,4 +28,16 @@ pub fn build(b: *std.Build) void {
 
     const start_server = b.step("run", "Start the server");
     start_server.dependOn(&run_exe.step);
+
+    const test_exe = b.addTest(.{
+        .root_source_file = .{ .path = "src/main.zig" },
+        .target = target,
+        .optimize = optimize,
+    });
+    test_exe.linkLibrary(dedalus.artifact("wolfssl"));
+    test_exe.addModule("dedalus", dedalus.module("dedalus"));
+
+    const run_tests = b.addRunArtifact(test_exe);
+    const start_tests = b.step("test", "Execute tests");
+    start_tests.dependOn(&run_tests.step);
 }

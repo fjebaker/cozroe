@@ -78,16 +78,17 @@ pub const ArgParser = struct {
             if (self.current[0] == '-' and self.current.len > 1) {
                 if (self.current[1] == '-') {
                     // named flag
-                    self.index =
+                    const end =
                         std.mem.indexOf(u8, self.current, "=") orelse self.current.len;
-                    // step past the equals if there is one
-                    self.index += 1;
-                    return .{
+                    const arg = .{
                         .flag = true,
                         .named_flag = true,
                         // trim off the dashes
-                        .value = self.current[2 .. self.index - 1],
+                        .value = self.current[2..end],
                     };
+                    // step past the equals if there is one
+                    self.index += end + 1;
+                    return arg;
                 }
                 self.in_flag = true;
                 // trim off dash
@@ -101,8 +102,12 @@ pub const ArgParser = struct {
             return .{ .flag = true, .value = flag };
         }
         // positional argument
+        const arg = .{
+            .positional = true,
+            .value = self.current[self.index..self.current.len],
+        };
         self.index = self.current.len;
-        return .{ .positional = true, .value = self.current };
+        return arg;
     }
 };
 
@@ -113,6 +118,7 @@ pub const Arguments = struct {
 };
 
 fn parseFromIterator(iterator: *StringIterator) !Arguments {
+    var out = std.io.getStdErr().writer();
     var args = Arguments{};
 
     var arg_parser = ArgParser.init(iterator);
@@ -121,7 +127,7 @@ fn parseFromIterator(iterator: *StringIterator) !Arguments {
             if (arg.is(0, "cert")) {
                 args.certificate_path =
                     (try arg_parser.nextPositional()).value;
-            } else if (arg.is(0, "path")) {
+            } else if (arg.is(0, "key")) {
                 args.private_key_path =
                     (try arg_parser.nextPositional()).value;
             } else if (arg.is(0, "port")) {
@@ -137,8 +143,38 @@ fn parseFromIterator(iterator: *StringIterator) !Arguments {
             try unknownArgument(arg);
         }
     }
+    if (args.certificate_path == null) {
+        _ = try out.write("Certificate path not specified (--cert)");
+        std.os.exit(1);
+    } else if (args.private_key_path == null) {
+        _ = try out.write("Private key path not set (--key)");
+        std.os.exit(1);
+    }
 
     return args;
+}
+
+fn testArgParse(items: []const []const u8, comptime expected: Arguments) !void {
+    var itt = StringIterator.init(items);
+    const args = try parseFromIterator(&itt);
+    try std.testing.expectEqualDeep(expected, args);
+}
+
+test "arg-parsing" {
+    try testArgParse(
+        &[_][]const u8{ "--cert", "cert.pem", "--key", "key.rsa" },
+        .{
+            .certificate_path = "cert.pem",
+            .private_key_path = "key.rsa",
+        },
+    );
+    try testArgParse(
+        &[_][]const u8{ "--cert=cert.pem", "--key=key.rsa" },
+        .{
+            .certificate_path = "cert.pem",
+            .private_key_path = "key.rsa",
+        },
+    );
 }
 
 pub fn parseArgs(
@@ -167,7 +203,7 @@ pub fn parseArgs(
                 \\--help, -h         Display this help and exit.
                 \\--cert <str>       Path to the server certificate.
                 \\--key <str>        Path to the private key.
-                \\--port, -p <int>   Port to listen on
+                \\--port, -p <int>   Port to listen on (default 1965).
                 \\
             );
             // terminate after printing help
