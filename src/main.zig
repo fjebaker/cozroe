@@ -5,14 +5,37 @@ const log = std.log.scoped(.cozroe);
 
 const cli = @import("cli.zig");
 
-fn handleRequest(request: dedalus.Request) !void {
+fn readFile(alloc: std.mem.Allocator, path: []const u8) ![]u8 {
+    var file = try std.fs.cwd().openFile(path, .{ .mode = .read_only });
+    defer file.close();
+    return try file.readToEndAlloc(alloc, 65536);
+}
+
+fn serveFile(
+    alloc: std.mem.Allocator,
+    request: *dedalus.Request,
+    path: []const u8,
+) !void {
+    var content = readFile(alloc, path) catch |err| {
+        if (err != error.FileNotFound) {
+            log.err("error: {!}", .{err});
+        }
+        try request.respond(.{ .status = .NOT_FOUND });
+        return;
+    };
+    try request.respond(.{ .content = content });
+}
+
+fn handleRequest(request: *dedalus.Request) !void {
     defer request.deinit();
+
+    var alloc = request.mem.allocator();
 
     // resolve request path
     if (std.mem.eql(u8, request.uri.path, "/")) {
-        try request.respond(.{ .content = "hello from cozroe" });
+        try serveFile(alloc, request, "index.gmi");
     } else {
-        try request.respond(.{ .status = .NOT_FOUND });
+        try serveFile(alloc, request, request.uri.path);
     }
 }
 
@@ -26,7 +49,7 @@ fn listenForever(server: *dedalus.Server) !void {
         var request = server.accept() catch {
             continue;
         };
-        try handleRequest(request);
+        try handleRequest(&request);
     }
 }
 

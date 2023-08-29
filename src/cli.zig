@@ -115,6 +115,7 @@ pub const Arguments = struct {
     port: u16 = 1965,
     certificate_path: ?[]const u8 = null,
     private_key_path: ?[]const u8 = null,
+    directory: []const u8 = ".",
 };
 
 fn parseFromIterator(iterator: *StringIterator) !Arguments {
@@ -128,6 +129,9 @@ fn parseFromIterator(iterator: *StringIterator) !Arguments {
                 args.certificate_path =
                     (try arg_parser.nextPositional()).value;
             } else if (arg.is(0, "key")) {
+                args.private_key_path =
+                    (try arg_parser.nextPositional()).value;
+            } else if (arg.is(0, "dir")) {
                 args.private_key_path =
                     (try arg_parser.nextPositional()).value;
             } else if (arg.is(0, "port")) {
@@ -201,6 +205,7 @@ pub fn parseArgs(
             _ = try out.write(
                 \\cozroe v0.2.0
                 \\--help, -h         Display this help and exit.
+                \\--dir <str>        Path to directory to serve.
                 \\--cert <str>       Path to the server certificate.
                 \\--key <str>        Path to the private key.
                 \\--port, -p <int>   Port to listen on (default 1965).
