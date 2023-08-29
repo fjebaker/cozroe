@@ -1,9 +1,0 @@
-[submodule "libs/zig-serve"]
-	path = libs/zig-serve
-	url = https://github.com/MasterQ32/zig-serve
-[submodule "libs/zig-clap"]
-	path = libs/zig-clap
-	url = https://github.com/Hejsil/zig-clap
-[submodule "libs/zig-regex"]
-	path = libs/zig-regex
-	url = https://github.com/tiehuis/zig-regex

@@ -1,0 +1,10 @@
+.{
+    .name = "cozroe",
+    .version = "0.1.0",
+    .dependencies = .{
+        .dedalus = .{
+            .url = "https://github.com/fjebaker/dedalus/archive/main.tar.gz",
+            .hash ="1220cf90f13f2b29e3ae322cbecf2fe764eadae08940e586a12b0f8808ac89167d85",
+        }
+    },
+}

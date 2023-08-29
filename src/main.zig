@@ -1,34 +1,17 @@
 const std = @import("std");
-const serve = @import("serve");
-const network = @import("network");
+const dedalus = @import("dedalus");
 
-const server = @import("./server.zig");
-const cli = @import("./cli.zig");
-const database = @import("./database.zig");
+const cli = @import("cli.zig");
 
 pub fn main() !void {
-    // parse arguments
-    var config = cli.parseArgs() catch return;
+    const allocator = std.heap.c_allocator;
+    // process command line arguments
+    var args_iterator = try std.process.argsWithAllocator(allocator);
+    // drop the name
+    _ = args_iterator.next();
+    const args = try cli.parseArgs(allocator, &args_iterator);
+    _ = args;
 
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    defer _ = gpa.deinit();
-
-    try network.init();
-    defer network.deinit();
-
-    try serve.initTls();
-    defer serve.deinitTls();
-
-    var alloc = gpa.allocator();
-
-    var path = try std.mem.Allocator.dupeZ(alloc, u8, config.database);
-    defer alloc.free(path);
-
-    var db = try database.init(path);
-    defer db.deinit();
-
-    var s = try server.Server.init(alloc, &config, &db);
-    defer s.deinit();
-
-    try s.start();
+    try dedalus.init();
+    defer dedalus.deinit();
 }
