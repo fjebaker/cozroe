@@ -31,7 +31,12 @@ pub fn Iterator(comptime T: type) type {
             }
             return null;
         }
-
+        pub fn peek(self: *const @This()) ?T {
+            if (self.index < self.data.len) {
+                return self.data[self.index + 1];
+            }
+            return null;
+        }
         pub fn reset(self: *@This()) void {
             self.index = 0;
         }

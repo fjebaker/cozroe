@@ -5,18 +5,37 @@ const log = std.log.scoped(.cozroe);
 
 const cli = @import("cli.zig");
 
-fn readFile(alloc: std.mem.Allocator, path: []const u8) ![]u8 {
-    var file = try std.fs.cwd().openFile(path, .{ .mode = .read_only });
-    defer file.close();
-    return try file.readToEndAlloc(alloc, 65536);
+fn sanitize(alloc: std.mem.Allocator, path: []const u8) ![]u8 {
+    var buf = try alloc.alloc(u8, path.len);
+
+    var itt = cli.Iterator(u8).init(path);
+    var i: usize = 0;
+    while (itt.next()) |c| {
+        if (c == '.' and itt.peek() == '.') {
+            while (itt.peek()) |n| {
+                if (n != '.') break;
+                _ = itt.next();
+            }
+        } else {
+            buf[i] = c;
+        }
+    }
+    return buf[0..i];
+}
+
+fn readFile(alloc: std.mem.Allocator, directory: []const u8, path: []const u8) ![]u8 {
+    var dir = try std.fs.openDirAbsolute(directory, .{});
+    defer dir.close();
+    return dir.readFileAlloc(alloc, try sanitize(alloc, path), 65536);
 }
 
 fn serveFile(
     alloc: std.mem.Allocator,
     request: *dedalus.Request,
+    directory: []const u8,
     path: []const u8,
 ) !void {
-    var content = readFile(alloc, path) catch |err| {
+    var content = readFile(alloc, directory, path) catch |err| {
         if (err != error.FileNotFound) {
             log.err("error: {!}", .{err});
         }
@@ -26,20 +45,20 @@ fn serveFile(
     try request.respond(.{ .content = content });
 }
 
-fn handleRequest(request: *dedalus.Request) !void {
+fn handleRequest(path: []const u8, request: *dedalus.Request) !void {
     defer request.deinit();
 
     var alloc = request.mem.allocator();
 
     // resolve request path
     if (std.mem.eql(u8, request.uri.path, "/")) {
-        try serveFile(alloc, request, "index.gmi");
+        try serveFile(alloc, request, path, "index.gmi");
     } else {
-        try serveFile(alloc, request, request.uri.path);
+        try serveFile(alloc, request, path, request.uri.path);
     }
 }
 
-fn listenForever(server: *dedalus.Server) !void {
+fn listenForever(path: []const u8, server: *dedalus.Server) !void {
     try server.start();
     defer server.stop();
 
@@ -49,7 +68,7 @@ fn listenForever(server: *dedalus.Server) !void {
         var request = server.accept() catch {
             continue;
         };
-        try handleRequest(&request);
+        try handleRequest(path, &request);
     }
 }
 
@@ -83,7 +102,10 @@ pub fn main() !void {
     );
     defer server.deinit();
 
-    try listenForever(&server);
+    var buf: [1024]u8 = undefined;
+    const directory_path = try std.fs.cwd().realpath(args.directory, &buf);
+
+    try listenForever(directory_path, &server);
 }
 
 test "all" {
