@@ -5,28 +5,39 @@ const log = std.log.scoped(.cozroe);
 
 const cli = @import("cli.zig");
 
-fn sanitize(alloc: std.mem.Allocator, path: []const u8) ![]u8 {
-    var buf = try alloc.alloc(u8, path.len);
+fn isValidFile(directory: []const u8, path: []const u8) bool {
+    var dir = std.fs.openDirAbsolute(directory, .{}) catch |err| {
+        log.err("error opening {s} as dir:{!}", .{ directory, err });
+        return false;
+    };
+    defer dir.close();
 
-    var itt = cli.Iterator(u8).init(path);
-    var i: usize = 0;
-    while (itt.next()) |c| {
-        if (c == '.' and itt.peek() == '.') {
-            while (itt.peek()) |n| {
-                if (n != '.') break;
-                _ = itt.next();
-            }
-        } else {
-            buf[i] = c;
-        }
-    }
-    return buf[0..i];
+    var buf: [1024]u8 = undefined;
+    var abspath = dir.realpath(path, &buf) catch {
+        return false;
+    };
+    return std.mem.startsWith(u8, abspath, directory);
 }
 
+test "valid-files" {
+    var buf: [1024]u8 = undefined;
+    const root = try std.os.getcwd(&buf);
+    try std.testing.expect(isValidFile(root, "./build.zig"));
+    try std.testing.expect(isValidFile(root, "src/main.zig"));
+    // // should fail
+    try std.testing.expect(!isValidFile(root, ".."));
+    try std.testing.expect(!isValidFile(root, "/dev"));
+    try std.testing.expect(!isValidFile(root, "/file/that/doesnt/exist"));
+    try std.testing.expect(!isValidFile(root, "./buiiiild.zig"));
+}
+
+const SandboxErrors = error{SandboxViolation};
+
 fn readFile(alloc: std.mem.Allocator, directory: []const u8, path: []const u8) ![]u8 {
+    if (!isValidFile(directory, path)) return SandboxErrors.SandboxViolation;
     var dir = try std.fs.openDirAbsolute(directory, .{});
     defer dir.close();
-    return dir.readFileAlloc(alloc, try sanitize(alloc, path), 65536);
+    return dir.readFileAlloc(alloc, path, 65536);
 }
 
 fn serveFile(
@@ -35,8 +46,9 @@ fn serveFile(
     directory: []const u8,
     path: []const u8,
 ) !void {
-    var content = readFile(alloc, directory, path) catch |err| {
-        if (err != error.FileNotFound) {
+    const adjusted_path = if (std.mem.startsWith(u8, path, "/")) path[1..] else path;
+    var content = readFile(alloc, directory, adjusted_path) catch |err| {
+        if (err != error.FileNotFound and err != error.SandboxViolation) {
             log.err("error: {!}", .{err});
         }
         try request.respond(.{ .status = .NOT_FOUND });
@@ -82,6 +94,7 @@ pub fn main() !void {
 
     const args = try cli.parseArgs(allocator, &args_iterator);
 
+    // init the SSL library
     try dedalus.init();
     defer dedalus.deinit();
 

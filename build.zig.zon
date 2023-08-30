@@ -4,7 +4,7 @@
     .dependencies = .{
         .dedalus = .{
             .url = "https://github.com/fjebaker/dedalus/archive/main.tar.gz",
-            .hash ="1220cf90f13f2b29e3ae322cbecf2fe764eadae08940e586a12b0f8808ac89167d85",
+            .hash ="1220dd52c5931e7f3e3dc30d0f061f5166a7da0bc933a32bdcdfbab8b0eb45ba0310",
         }
     },
 }

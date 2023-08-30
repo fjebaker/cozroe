@@ -137,7 +137,7 @@ fn parseFromIterator(iterator: *StringIterator) !Arguments {
                 args.private_key_path =
                     (try arg_parser.nextPositional()).value;
             } else if (arg.is(0, "dir")) {
-                args.private_key_path =
+                args.directory =
                     (try arg_parser.nextPositional()).value;
             } else if (arg.is(0, "port")) {
                 args.port = try std.fmt.parseInt(
