@@ -98,7 +98,7 @@ pub fn main() !void {
     try dedalus.init();
     defer dedalus.deinit();
 
-    const address = std.net.Address.initIp4([4]u8{ 127, 0, 0, 1 }, args.port);
+    const address = std.net.Address.initIp4([4]u8{ 0, 0, 0, 0 }, args.port);
 
     var certificate_path = try allocator.dupeZ(u8, args.certificate_path.?);
     defer allocator.free(certificate_path);
