@@ -1,7 +1,0 @@
-id: 3zi3t15c4j90651rvvniweqcq7zv3oqf5ccn58o41df5yusr
-name: cozroe
-license: Mit
-description: none
-root_dependencies:
-  - src: git https://github.com/Hejsil/zig-clap
-  - src: git https://github.com/vrischmann/zig-sqlite
